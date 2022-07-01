@@ -1,5 +1,6 @@
-import 'package:adesso_timer/style_constants.dart';
+import 'package:adesso_timer/utils/style_constants.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class TimeInput extends StatelessWidget {
   const TimeInput({
@@ -13,10 +14,16 @@ class TimeInput extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TextField(
+    return TextFormField(
+      cursorColor: inkDark,
+      inputFormatters: [
+        LengthLimitingTextInputFormatter(2),
+        LimitRange(0, 99),
+      ],
+      enableSuggestions: false,
       keyboardType: TextInputType.number,
       decoration: kTextFieldDeco,
-      controller: timeInput,
+      controller: timeInput..selection = TextSelection.fromPosition(TextPosition(offset: timeInput.text.length)),
       onChanged: (value) {
         if (value.isEmpty) {
           counter.value = 0;
@@ -26,5 +33,28 @@ class TimeInput extends StatelessWidget {
         }
       },
     );
+  }
+}
+
+class LimitRange extends TextInputFormatter {
+  LimitRange(
+    this.minRange,
+    this.maxRange,
+  ) : assert(
+          minRange < maxRange,
+        );
+
+  final int minRange;
+  final int maxRange;
+
+  @override
+  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
+    final value = int.parse(newValue.text.isEmpty ? '0' : newValue.text);
+    if (value < minRange) {
+      return TextEditingValue(text: minRange.toString());
+    } else if (value > maxRange) {
+      return TextEditingValue(text: maxRange.toString());
+    }
+    return newValue;
   }
 }

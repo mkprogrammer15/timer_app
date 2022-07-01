@@ -66,7 +66,7 @@ const kMessageTextFieldDecoration = InputDecoration(
   border: InputBorder.none,
 );
 
-const kTextFieldDeco = InputDecoration(contentPadding: EdgeInsets.all(10), hintText: 'Type your seconds amount here');
+const kTextFieldDeco = InputDecoration(border: InputBorder.none, contentPadding: EdgeInsets.all(10), hintText: 'Type your seconds amount here');
 
 const kMessageContainerDecoration = BoxDecoration(
   border: Border(
