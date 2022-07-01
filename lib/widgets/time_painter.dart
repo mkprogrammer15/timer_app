@@ -4,13 +4,14 @@ import 'package:flutter/material.dart';
 
 class TimePainter extends StatelessWidget {
   final Animation<double> animation;
+  final Color progressColor;
 
-  const TimePainter({required this.animation, super.key});
+  const TimePainter({required this.animation, required this.progressColor, super.key});
 
   @override
   Widget build(BuildContext context) {
     return CustomPaint(
-      painter: CustomTimePainter(animation: animation, color: apple, backgroundColor: snow),
+      painter: CustomTimePainter(animation: animation, color: progressColor, backgroundColor: snow),
     );
   }
 }

@@ -17,6 +17,7 @@ class TimerScreen extends StatefulWidget {
 class _TimerScreenState extends State<TimerScreen> with TickerProviderStateMixin {
   late final AnimationController controller;
   late final Animation<double> progressAnimation;
+  bool startButtonIsActive = false;
 
   final TextEditingController timeInput = TextEditingController();
 
@@ -78,7 +79,10 @@ class _TimerScreenState extends State<TimerScreen> with TickerProviderStateMixin
                       SizedBox(
                         width: 200,
                         height: 200,
-                        child: TimePainter(animation: progressAnimation),
+                        child: TimePainter(
+                          animation: progressAnimation,
+                          progressColor: progressAnimation.value > 0.6 ? Colors.red : apple,
+                        ),
                       ),
                       Center(
                         child: Container(
@@ -99,19 +103,23 @@ class _TimerScreenState extends State<TimerScreen> with TickerProviderStateMixin
                       children: [
                         TimerButton(
                           timeInput: timeInput,
-                          onPressed: () {
-                            final userValue = int.parse(timeInput.text.isEmpty ? '10' : timeInput.text);
-                            if (TimerService.counter.value != userValue) {
-                              return;
-                            } else {
-                              TimerService.startTimer(userValue);
-                              setState(() {
-                                controller.duration = Duration(seconds: TimerService.counter.value);
-                                controller.forward();
-                              });
-                            }
-                          },
-                          backGroundColor: apple,
+                          onPressed: startButtonIsActive
+                              ? () {}
+                              : () {
+                                  startButtonIsActive = true;
+                                  final userValue = int.parse(timeInput.text.isEmpty ? '10' : timeInput.text);
+                                  if (TimerService.counter.value != userValue) {
+                                    return;
+                                  } else {
+                                    TimerService.startTimer(userValue);
+                                    setState(() {
+                                      controller
+                                        ..duration = Duration(seconds: TimerService.counter.value)
+                                        ..forward();
+                                    });
+                                  }
+                                },
+                          backGroundColor: startButtonIsActive ? blueyGrey : apple,
                           buttonName: 'Start',
                         ),
                         const SizedBox(
@@ -122,6 +130,7 @@ class _TimerScreenState extends State<TimerScreen> with TickerProviderStateMixin
                           backGroundColor: cherry,
                           timeInput: timeInput,
                           onPressed: () {
+                            startButtonIsActive = false;
                             TimerService.stopTimer();
                             TimerService.resetTimer();
                             timeInput.clear();
