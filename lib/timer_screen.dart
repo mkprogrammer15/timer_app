@@ -17,8 +17,10 @@ class _TimerScreenState extends State<TimerScreen> with TickerProviderStateMixin
   late final AnimationController controller;
   late final Animation<double> progressAnimation;
   bool startButtonIsActive = false;
+  bool stopButtonIsActive = true;
   final shakeKey = GlobalKey<ShakeWidgetState>();
   final TextEditingController timeInput = TextEditingController();
+  String stopButtonDescription = '';
 
   @override
   void initState() {
@@ -54,7 +56,11 @@ class _TimerScreenState extends State<TimerScreen> with TickerProviderStateMixin
           builder: (context, _, __) {
             if (TimerService.counter.value == 0) {
               shakeKey.currentState?.shake();
+              stopButtonDescription = 'Reset';
+            } else {
+              stopButtonDescription = 'Stop';
             }
+
             return SingleChildScrollView(
               child: SizedBox(
                 height: size.height,
@@ -116,6 +122,7 @@ class _TimerScreenState extends State<TimerScreen> with TickerProviderStateMixin
                                 ? () {}
                                 : () {
                                     startButtonIsActive = true;
+                                    stopButtonIsActive = false;
                                     final userValue = int.parse(timeInput.text.isEmpty ? '10' : timeInput.text);
                                     if (TimerService.counter.value != userValue) {
                                       return;
@@ -136,17 +143,20 @@ class _TimerScreenState extends State<TimerScreen> with TickerProviderStateMixin
                             width: 20,
                           ),
                           TimerButton(
-                            buttonName: 'Stop',
-                            backGroundColor: cherry,
+                            buttonName: stopButtonDescription,
+                            backGroundColor: stopButtonIsActive ? blueyGrey : cherry,
                             timeInput: timeInput,
-                            onPressed: () {
-                              HapticFeedback.heavyImpact();
-                              startButtonIsActive = false;
-                              TimerService.stopTimer();
-                              TimerService.resetTimer();
-                              timeInput.clear();
-                              controller.reset();
-                            },
+                            onPressed: stopButtonIsActive
+                                ? () {}
+                                : () {
+                                    HapticFeedback.heavyImpact();
+                                    startButtonIsActive = false;
+                                    stopButtonIsActive = true;
+                                    TimerService.stopTimer();
+                                    TimerService.resetTimer();
+                                    timeInput.clear();
+                                    controller.reset();
+                                  },
                           )
                         ],
                       ),

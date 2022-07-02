@@ -1,3 +1,4 @@
+import 'package:adesso_timer/utils/style_constants.dart';
 import 'package:flutter/material.dart';
 
 class TimerButton extends StatelessWidget {
@@ -18,6 +19,8 @@ class TimerButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return ElevatedButton(
       style: ButtonStyle(
+        elevation: MaterialStateProperty.resolveWith((elev) => 15),
+        shadowColor: MaterialStateProperty.resolveWith((color) => backGroundColor),
         fixedSize: MaterialStateProperty.resolveWith((size) => const Size(100, 50)),
         backgroundColor: MaterialStateProperty.resolveWith((color) => backGroundColor),
       ),
