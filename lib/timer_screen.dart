@@ -5,6 +5,7 @@ import 'package:adesso_timer/widgets/button_timer.dart';
 import 'package:adesso_timer/widgets/shake_widget.dart';
 import 'package:adesso_timer/widgets/time_input.dart';
 import 'package:adesso_timer/widgets/time_painter.dart';
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -21,10 +22,17 @@ class _TimerScreenState extends State<TimerScreen> with TickerProviderStateMixin
   final shakeKey = GlobalKey<ShakeWidgetState>();
   final TextEditingController timeInput = TextEditingController();
   String stopButtonDescription = '';
+  final audioPlayer = AudioPlayer();
+  bool isPlaying = false;
 
   @override
   void initState() {
     super.initState();
+    audioPlayer.onPlayerStateChanged.listen((state) {
+      setState(() {
+        isPlaying = state == PlayerState.playing;
+      });
+    });
     controller = AnimationController(vsync: this, duration: const Duration(seconds: 1));
     progressAnimation = Tween<double>(begin: 0, end: 1).animate(controller);
     progressAnimation.addListener(() {
@@ -35,6 +43,7 @@ class _TimerScreenState extends State<TimerScreen> with TickerProviderStateMixin
   @override
   void dispose() {
     super.dispose();
+    audioPlayer.dispose();
     controller.dispose();
   }
 
@@ -57,6 +66,7 @@ class _TimerScreenState extends State<TimerScreen> with TickerProviderStateMixin
             if (TimerService.counter.value == 0) {
               shakeKey.currentState?.shake();
               stopButtonDescription = 'Reset';
+              audioPlayer.stop();
             } else {
               stopButtonDescription = 'Stop';
             }
@@ -120,14 +130,19 @@ class _TimerScreenState extends State<TimerScreen> with TickerProviderStateMixin
                             timeInput: timeInput,
                             onPressed: startButtonIsActive
                                 ? () {}
-                                : () {
+                                : () async {
                                     startButtonIsActive = true;
                                     stopButtonIsActive = false;
                                     final userValue = int.parse(timeInput.text.isEmpty ? '10' : timeInput.text);
                                     if (TimerService.counter.value != userValue) {
                                       return;
                                     } else {
-                                      HapticFeedback.heavyImpact();
+                                      await HapticFeedback.heavyImpact();
+                                      if (isPlaying || TimerService.counter.value == 0) {
+                                        await audioPlayer.pause();
+                                      } else {
+                                        await audioPlayer.play(AssetSource('tick_timer.mp3'));
+                                      }
                                       TimerService.startTimer(userValue);
                                       setState(() {
                                         controller
@@ -150,6 +165,7 @@ class _TimerScreenState extends State<TimerScreen> with TickerProviderStateMixin
                                 ? () {}
                                 : () {
                                     HapticFeedback.heavyImpact();
+                                    audioPlayer.stop();
                                     startButtonIsActive = false;
                                     stopButtonIsActive = true;
                                     TimerService.stopTimer();
