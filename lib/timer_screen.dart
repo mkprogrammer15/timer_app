@@ -64,7 +64,7 @@ class _TimerScreenState extends State<TimerScreen> with TickerProviderStateMixin
           valueListenable: TimerService.counter,
           builder: (context, _, __) {
             if (TimerService.counter.value == 0) {
-              shakeKey.currentState?.shake();
+              // shakeKey.currentState?.shake();
               stopButtonDescription = 'Reset';
               audioPlayer.stop();
             } else {
@@ -166,6 +166,7 @@ class _TimerScreenState extends State<TimerScreen> with TickerProviderStateMixin
                                 : () {
                                     HapticFeedback.heavyImpact();
                                     audioPlayer.stop();
+                                    shakeKey.currentState?.shake();
                                     startButtonIsActive = false;
                                     stopButtonIsActive = true;
                                     TimerService.stopTimer();
